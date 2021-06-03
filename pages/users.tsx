@@ -16,6 +16,9 @@ const Users = ({ usersData }: UserDataProps) => {
   useEffect(() => {
     const load = async () => {
       const responce = await fetch("http://localhost:3001/api/users");
+      if (!responce) {
+        alert("Warning");
+      }
       const usersData = await responce.json();
       setUsers(usersData);
     };
