@@ -8,6 +8,8 @@
     "start": "cross-env NODE_ENV=production node server2.js"
   },
   "dependencies": {
+    "@material-ui/core": "^4.11.4",
+    "@material-ui/icons": "^4.11.2",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
     "express": "^4.17.1",

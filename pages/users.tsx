@@ -3,17 +3,21 @@ import Link from "next/link";
 import { UserData } from '../interfaces/user';
 import { NextPageContext } from 'next';
 import { SideBar } from '../components/SideBar';
-
+import { makeStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
+import HighlightOffIcon from '@material-ui/icons/HighlightOff';
+import UsersButtonBlock from '../components/UsersButtonBlock';
 interface UserDataProps {
   usersData: UserData[]
 }
 
-const Users = ({ usersData }: UserDataProps) => {
-  const [users, setUsers] = useState(usersData);
-  const [addUser, setAddUser] = useState(false);
-  const [name, setName] = useState("");
+const Users = ({ usersData }: UserDataProps) => {  
+  const [users, setUsers] = useState<UserData[]>(usersData);
+  const [addUser, setAddUser] = useState<boolean>(false);
+  const [name, setName] = useState<string>("");
 
-  useEffect(() => {
+  useEffect((): void => {
     const load = async () => {
       const responce = await fetch("http://localhost:3001/api/users");
       if (!responce) {
@@ -28,8 +32,21 @@ const Users = ({ usersData }: UserDataProps) => {
     }
   }, []);
 
-  const handleChangeName = (e: any) => {
-    setName(e.target.value);
+  const handleChangeName = (name: string) => {
+    setName(name);
+  };
+
+  const handleDeleteUser = async (id: number) => {
+    const responce = await fetch("http://localhost:3001/api/users", {
+      method: "DELETE",
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({id})
+    });
+    const usersData = await responce.json();
+    setUsers(usersData);
   }
 
   const handleClickSave = async () => {
@@ -60,43 +77,51 @@ const Users = ({ usersData }: UserDataProps) => {
       </div>
       <div className="list">
         <ul>
-          {users?.map((user) => (
-            <li key={user?.id}>
-              <Link href={"user/[id]"} as={`/user/${user?.id}`}>
-                <a>{user?.name}</a>
-              </Link>
+          {users?.map((user, index: number) => (
+            <li
+              key={user?.id}
+              style={{
+                backgroundColor: ((index + 1) % 2 ? "#b2b2b2" : "#b1a3b5"),
+                padding: 5,
+                fontSize: 20,
+              }}
+            >
+              <Grid container>
+                <Grid item xs={11}>
+                  <Link href={"user/[id]"} as={`/user/${user?.id}`}>
+                    <a>{user?.name}</a>
+                  </Link>
+                </Grid>
+                <Grid item xs={1}>
+                  <HighlightOffIcon className="button--delete" type="button" onClick={() => handleDeleteUser(+user.id)}/>
+                </Grid>
+              </Grid>
             </li>
           ))}
         </ul>
       </div>
       <div className="action_content">
-        <div>
-          <button type="button" onClick={handleAddUser}>add user</button>
-        </div>
-        {addUser && (
+        {!addUser ? (
           <div>
-            <p>
-              Name
-            </p>
-            <p>
-              <input 
-                type="text"
-                maxLength={60}
-                value={name}
-                onChange={e => handleChangeName(e)}
-                placeholder="Enter name"
-              />
-            </p>
-            <button type="button" onClick={handleClickSave}>
-              Save
-            </button>
-            <button type="button" onClick={handleClickCancel} className="button--type2">
-              Cancel
-            </button>
+            <Button 
+              variant="contained" 
+              color="primary" 
+              type="button" 
+              onClick={handleAddUser}
+              size="small"
+            >
+              add user
+            </Button>
           </div>
-        )
-
-        }
+        ) : (
+          <UsersButtonBlock 
+            handleChangeName={handleChangeName}
+            addUser={addUser}
+            handleClickSave={handleClickSave}
+            handleClickCancel={handleClickCancel}
+            name={name}
+          />
+        )}
       </div>
       <style jsx>
         {`
@@ -107,27 +132,29 @@ const Users = ({ usersData }: UserDataProps) => {
           
           .list {
             margin: auto;
-            width: 400px;
+            max-width: 400px;
             padding: 10px;
             border: solid 2px;
             border-color: blue;
             border-radius: 10px;
           }
 
-          button: {
-            background: red;
-            border-radius: 10px;
-            color: black;
-            padding: 10px
-          }
-
           .action_content {
             text-align: center;
-            margin-top: 15px;
+            margin: 15px 0;
           }
 
-          .button--type2 {
-            margin-left: 15px;
+          ul {
+            padding: 20px 0;
+            margin: 0px;
+          }
+
+          li {
+            list-style: none;
+          }
+
+          a {
+            text-decoration: none;
           }
 
         `}

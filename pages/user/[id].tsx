@@ -3,7 +3,9 @@ import { useRouter } from "next/router";
 import { NextPageContext } from "next";
 import { UserData } from '../../interfaces/user';
 import { SideBar } from '../../components/SideBar';
-
+import Button from '@material-ui/core/Button';
+import CircularIndeterminate from '../../components/Loader';
+import BackspaceIcon from '@material-ui/icons/Backspace';
 interface UserPageProps {
   user: UserData
 }
@@ -11,9 +13,9 @@ interface UserPageProps {
 const User = ({ user: serverUser }: UserPageProps) => {
   const router = useRouter();
 
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<UserData | null>(null);
 
-  const handleClickBack = () => {
+  const handleClickBack = (): void => {
     router.push("/users");
   };
 
@@ -32,24 +34,24 @@ const User = ({ user: serverUser }: UserPageProps) => {
   }, []);
 
   if (!user) {
-    return <p>Loading ...</p>;
+    return <CircularIndeterminate />;
   }
   return (
     <SideBar>
       <div className="content">
+        <Button variant="contained" color="primary" type="button" onClick={handleClickBack}>
+          <BackspaceIcon />
+        </Button>
+
         <h1>{user?.name}</h1>
-        <button type="button" onClick={handleClickBack}>
-          Back
-        </button>
+
       </div>
 
       <style jsx>
         {`
           .content {
-            position: fixed;
-            left: 200px;
-            top: 67px;
             margin-left: 25px;
+            padding-top: 25px;
           }
         `}
       </style>
